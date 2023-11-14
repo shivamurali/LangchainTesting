@@ -30,20 +30,21 @@ embeddings = OpenAIEmbeddings()
 
 #Select Dataset:
 option = st.selectbox(
-    'Select your Dataset',
-    ('Hammurabi\'s Code', 'NDX Methodology', 'Goldman Sachs 2024 Outlook')
+    'Select your Topic',
+    ('Hammurabi\'s Code', 'Nasdaq 100', 'Goldman Sachs 2024 Outlook', 'Business')
 )
 #Streamlit Page Creation:
 st.title(option)
 
-st.write('You Selected:',option)
-# Create and load PDF Loader
+# Create and load PDF Loader. Then, store
 if option == 'Hammurabi\'s Code':
     loader = PyPDFLoader('hammurabi_code.pdf')
-elif option == 'NDX Methodology':
+elif option == 'Nasdaq 100':
     loader = PyPDFLoader('NDX_metho.pdf')
 elif option == 'Goldman Sachs 2024 Outlook':
     loader = PyPDFLoader('report.pdf')
+elif option == 'Business':
+    loader = PyPDFLoader('Business.pdf')
 
 # Split pages from pdf 
 pages = loader.load_and_split()
@@ -81,7 +82,7 @@ if prompt:
     st.write(response)
 
     # With a streamlit expander  
-    with st.expander('Document Similarity Search'):
+    with st.expander('Document Context'):
         # Find the relevant pages
         search = store.similarity_search_with_score(prompt) 
         # Write out the first 
