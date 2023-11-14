@@ -26,15 +26,32 @@ os.environ['OPENAI_API_KEY'] = 'sk-kJBKjiOBDbtFU4TB4NboT3BlbkFJSmBIQsN97xAT5jQFK
 # Create instance of OpenAI LLM
 llm = OpenAI(temperature=0.1, verbose=True)
 embeddings = OpenAIEmbeddings()
+##################################################################################
 
+#Select Dataset:
+option = st.selectbox(
+    'Select your Dataset',
+    ('Hammurabi\'s Code', 'NDX Methodology', 'Goldman Sachs 2024 Outlook')
+)
+#Streamlit Page Creation:
+st.title(option)
+
+st.write('You Selected:',option)
 # Create and load PDF Loader
-loader = PyPDFLoader('report.pdf')
+if option == 'Hammurabi\'s Code':
+    loader = PyPDFLoader('hammurabi_code.pdf')
+elif option == 'NDX Methodology':
+    loader = PyPDFLoader('NDX_metho.pdf')
+elif option == 'Goldman Sachs 2024 Outlook':
+    loader = PyPDFLoader('report.pdf')
+
 # Split pages from pdf 
 pages = loader.load_and_split()
 # Load documents into vector database aka ChromaDB
-store = Chroma.from_documents(pages, embeddings, collection_name='goldman')
+store = Chroma.from_documents(pages, embeddings, collection_name= "Random")
 
-# Create vectorstore info object - metadata repo?
+# Create vectorstore info object - metadata repo?clear
+
 vectorstore_info = VectorStoreInfo(
     name="Goldman Sachs 2024 Outlook",
     description="Goldman Sachs 2024 Outlook as a pdf",
@@ -49,14 +66,17 @@ agent_executor = create_vectorstore_agent(
     toolkit=toolkit,
     verbose=True
 )
-st.title('Goldman Sachs 2024 Outlook')
+
 # Create a text input box for the user
 prompt = st.text_input('Input your prompt here')
 
 # If the user hits enter
 if prompt:
     # Then pass the prompt to the LLM
-    response = agent_executor.run(prompt)
+    try:
+        response = agent_executor.run(prompt)
+    except:
+        response = "There was an error with your query."
     # ...and write it out to the screen
     st.write(response)
 
@@ -66,3 +86,4 @@ if prompt:
         search = store.similarity_search_with_score(prompt) 
         # Write out the first 
         st.write(search[0][0].page_content) 
+    
